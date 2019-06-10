@@ -90,24 +90,23 @@ class Chips:
         self.value += self.win_bet
 
 
-def ask_chips():
+def ask_chips(chips):
     '''Asks player how many chips they want to start with'''
     while True:
         try:
-            bank = int(input("How many chips do you want to buy? - "))
+            chips.value = int(input("How many chips do you want to buy? - "))
         except ValueError:
             print("Sorry, I didn't understand you, please try again")
             continue
         else:
-            if bank < 1:
+            if chips.value < 1:
                 print(
                     "You haven't bought enough chips to play, you need to purchase more.\n")
                 continue
             else:
                 break
 
-    print(f"Thank you!\nYou have bought {bank} chips!")
-    return bank
+    print(f"Thank you!\nYou have bought {chips.value} chips!")
 
 
 def ask_bet(chips):
@@ -118,13 +117,14 @@ def ask_bet(chips):
         except ValueError:
             print("Sorry, I didn't understand you, please try again")
             continue
-        except chips.bet > chips.value:
-            print("Sorry, you do not have enough chips to bet, please try again")
-            continue
         else:
-            break
+            if chips.bet > chips.value:
+                print("Sorry, you do not have enough chips to bet, please try again")
+                continue
+            else:
+                break
 
-    return chips.bet
+    print(f"You are betting {chips.bet} chips")
 
 
 def hit(hand, deck):
