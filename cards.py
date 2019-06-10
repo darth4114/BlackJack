@@ -55,10 +55,10 @@ class Hand:
         self.value = 0
         self.aces = 0
 
-    def draw(self):
+    def draw(self, card):
         '''Drawing card from Deck() and adding value to total'''
-        self.cards.append(Deck.deal_card())
-        self.value += values(card.rank)
+        self.cards.append(card)
+        self.value += values[card.rank]
         if card.rank == 'Ace':
             self.aces += 1
 
@@ -90,11 +90,31 @@ class Chips:
         self.value += self.win_bet
 
 
+def ask_chips():
+    '''Asks player how many chips they want to start with'''
+    while True:
+        try:
+            bank = int(input("How many chips do you want to buy? - "))
+        except ValueError:
+            print("Sorry, I didn't understand you, please try again")
+            continue
+        else:
+            if bank < 1:
+                print(
+                    "You haven't bought enough chips to play, you need to purchase more.\n")
+                continue
+            else:
+                break
+
+    print(f"Thank you!\nYou have bought {bank} chips!")
+    return bank
+
+
 def ask_bet(chips):
     '''Asks player for a bet, cannot be more than their current chip count'''
     while True:
         try:
-            chips.bet = int(input("How many chips do you want to bet?"))
+            chips.bet = int(input("How many chips do you want to bet? - "))
         except ValueError:
             print("Sorry, I didn't understand you, please try again")
             continue
@@ -105,3 +125,79 @@ def ask_bet(chips):
             break
 
     return chips.bet
+
+
+def hit(hand, deck):
+    '''Append card to hand'''
+    hand.draw(deck.deal_card())
+    hand.aces()
+
+
+def hit_or_stand(hand, deck):
+    '''Ask if hit or stand until stand, or bust'''
+    global playing
+
+    while True:
+        x = input("Would you like to Hit or Stand? - ")
+
+        if x[0].lower() == 'h':
+            hit(hand, deck)
+        elif x[0].lower() == 's':
+            print("Player stands\nDealer's turn:\n")
+            playing = False
+        else:
+            print("Sorry please try again.\n")
+            continue
+        break
+
+
+def show_dealer_down(player, dealer):
+    '''Show hands with one dealer card facing down'''
+    print("Dealer's Hand: ")
+    print(" <Card Hidden> ")
+    print(dealer.cards[1])
+    print("Player's Hand: ", *player.cards, sep='\n ')
+    print(f"Player's hand = {player.value}")
+
+
+def show_dealer_up(player, dealer):
+    '''Show all of dealer's cards'''
+    print("Dealer's Hand: ", *dealer.cards, sep='\n')
+    print(f"Dealer's total = {dealer.value}")
+    print("Player's Hand: ", *player.cards, sep='\n')
+    print(f"Player's total = {player.value}")
+
+
+def player_blackjack(player, chips):
+    '''If player gets 21 on the draw, they get paid 2:1'''
+    print("Player gets Blackjack!")
+    chips.value += chips.bet * 2
+
+
+def player_win(player, chips):
+    '''If player wins, add winnings to value'''
+    print("Player wins!")
+    chips.win_bet()
+
+
+def player_bust(player, chips):
+    '''If player busts, subtract bet from value'''
+    print("Player busts!")
+    chips.lose_bet()
+
+
+def dealer_win(player, chips):
+    '''If dealer wins, subtract bet from value'''
+    print("Dealer wins!")
+    chips.lose_bet()
+
+
+def dealer_bust(player, chips):
+    '''If dealer busts, add winnings to value'''
+    print("Dealer busts!")
+    chips.win_bet()
+
+
+def push():
+    '''No winner'''
+    print("No winner, this game is a push!")
