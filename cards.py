@@ -204,15 +204,17 @@ def push():
     print("No winner, this game is a push!")
 
 
-def split_hand(player):
+def split_hand(player, chips, deck):
     '''
     return a new hand of a popped card from the player's hand, and a card from the desk
+    also returns a new bank with the player's bet as the value and bet values
     '''
-    pass
+    play_split = Hand()
+    play_split.draw(player.split())
+    play_split.draw(deck.deal_card())
 
+    bank_split = Chips(chips.bet)
+    bank_split.bet = chips.bet
+    chips.value -= chips.bet
 
-def split_bank(chips):
-    '''
-    return a temporary bank of chips to hold the bet for the split hand
-    '''
-    pass
+    return play_split, bank_split

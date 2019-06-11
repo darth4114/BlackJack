@@ -30,7 +30,7 @@ player_bank.bet = 40
 # c.ask_chips(player_bank)
 
 
-#print(f"This statement is outisde of the method! {player_bank.value} chips")
+# print(f"This statement is outisde of the method! {player_bank.value} chips")
 
 # c.ask_bet(player_bank)
 
@@ -72,14 +72,8 @@ if c.values[player.cards[0].rank] == c.values[player.cards[1].rank] and player_b
     x = input("Do you want to split? (y/n) - ")
 
     if x[0] == 'y':
-        player_split = c.Hand()
-        split_bank = c.Chips(0)
-        player_split.draw(player.split())
-        split_bank.value = player_bank.bet
-        split_bank.bet = player_bank.bet
-        player_bank.value -= player_bank.bet
+        player_split, split_bank = c.split_hand(player, player_bank, my_deck)
         player.draw(my_deck.deal_card())
-        player_split.draw(my_deck.deal_card())
 
         print("Player's Hand", *player.cards, sep='\n')
         print(f"value = {player.value}")
