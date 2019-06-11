@@ -65,6 +65,9 @@ player_bank.bet = 40
 print("Player's Hand", *player.cards, sep='\n')
 print(f"value = {player.value}")
 
+'''
+Checks the values of the initial card draws. If they are the same, the player has enough chips left to bet again, they are offered the option to split. If yes, a new hand and new bank are created for this game.
+'''
 if c.values[player.cards[0].rank] == c.values[player.cards[1].rank] and player_bank.bet * 2 < player_bank.value:
     x = input("Do you want to split? (y/n) - ")
 
