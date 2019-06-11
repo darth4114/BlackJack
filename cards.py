@@ -54,6 +54,7 @@ class Hand:
         self.cards = []
         self.value = 0
         self.aces = 0
+        self.bust = False
 
     def draw(self, card):
         '''Drawing card from Deck() and adding value to total'''
@@ -61,17 +62,25 @@ class Hand:
         self.value += values[card.rank]
         if card.rank == 'Ace':
             self.aces += 1
+        if self.value > 21:
+            self.bust = True
 
     def ace_adjust(self):
         '''Compensate for aces if cards are over 21'''
         while self.value > 21 and self.aces:
             self.value -= 10
             self.aces -= 1
+            self.bust = False
 
     def split(self):
         '''Split hand if cards are same value'''
         self.value -= values[self.cards[0].rank]
         return self.cards.pop()
+
+
+def disp_hand(player):
+    print(f"Player's Hand", *player.cards, sep='\n')
+    print(f"Hand Value = {player.value}")
 
 
 class Chips:
@@ -128,6 +137,22 @@ def ask_bet(chips):
     print(f"You are betting {chips.bet} chips")
 
 
+def split_hand(player, chips, deck):
+    '''
+    return a new hand of a popped card from the player's hand, and a card from the desk
+    also returns a new bank with the player's bet as the value and bet values
+    '''
+    play_split = Hand()
+    play_split.draw(player.split())
+    play_split.draw(deck.deal_card())
+
+    bank_split = Chips(chips.bet)
+    bank_split.bet = chips.bet
+    chips.value -= chips.bet
+
+    return play_split, bank_split
+
+
 def hit(hand, deck):
     '''Append card to hand'''
     hand.draw(deck.deal_card())
@@ -144,29 +169,12 @@ def hit_or_stand(hand, deck):
         if x[0].lower() == 'h':
             hit(hand, deck)
         elif x[0].lower() == 's':
-            print("Player stands\nDealer's turn:\n")
+            print("Player stands\n turn:\n")
             playing = False
         else:
             print("Sorry please try again.\n")
             continue
         break
-
-
-def show_dealer_down(player, dealer):
-    '''Show hands with one dealer card facing down'''
-    print("Dealer's Hand: ")
-    print(" <Card Hidden> ")
-    print(dealer.cards[1])
-    print("Player's Hand: ", *player.cards, sep='\n ')
-    print(f"Player's hand = {player.value}")
-
-
-def show_dealer_up(player, dealer):
-    '''Show all of dealer's cards'''
-    print("Dealer's Hand: ", *dealer.cards, sep='\n')
-    print(f"Dealer's total = {dealer.value}")
-    print("Player's Hand: ", *player.cards, sep='\n')
-    print(f"Player's total = {player.value}")
 
 
 def player_blackjack(player, chips):
@@ -199,22 +207,11 @@ def dealer_bust(player, chips):
     chips.win_bet()
 
 
+def split_combine(player, chips, split, sp_chips, dealer):
+    '''Combine winnings/losses from a split hand'''
+    pass
+
+
 def push():
     '''No winner'''
     print("No winner, this game is a push!")
-
-
-def split_hand(player, chips, deck):
-    '''
-    return a new hand of a popped card from the player's hand, and a card from the desk
-    also returns a new bank with the player's bet as the value and bet values
-    '''
-    play_split = Hand()
-    play_split.draw(player.split())
-    play_split.draw(deck.deal_card())
-
-    bank_split = Chips(chips.bet)
-    bank_split.bet = chips.bet
-    chips.value -= chips.bet
-
-    return play_split, bank_split
