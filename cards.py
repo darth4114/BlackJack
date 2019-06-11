@@ -202,3 +202,17 @@ def dealer_bust(player, chips):
 def push():
     '''No winner'''
     print("No winner, this game is a push!")
+
+
+def split_hand(player):
+    '''
+    return a new hand of a popped card from the player's hand, and a card from the desk
+    '''
+    pass
+
+
+def split_bank(chips):
+    '''
+    return a temporary bank of chips to hold the bet for the split hand
+    '''
+    pass
