@@ -23,17 +23,17 @@ player.draw(my_deck.deal_card())
 ################
 # test bust switch
 
-c.disp_hand(player)
+# c.disp_hand(player)
 
-c.hit(player, my_deck)
-c.disp_hand(player)
-print(f"{player.bust}")
-c.hit(player, my_deck)
-c.disp_hand(player)
-print(f"{player.bust}")
-c.hit(player, my_deck)
-c.disp_hand(player)
-print(f"{player.bust}")
+# c.hit(player, my_deck)
+# c.disp_hand(player)
+# print(f"{player.bust}")
+# c.hit(player, my_deck)
+# c.disp_hand(player)
+# print(f"{player.bust}")
+# c.hit(player, my_deck)
+# c.disp_hand(player)
+# print(f"{player.bust}")
 
 
 
