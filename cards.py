@@ -62,15 +62,16 @@ class Hand:
         if card.rank == 'Ace':
             self.aces += 1
 
-    def aces(self):
+    def ace_adjust(self):
         '''Compensate for aces if cards are over 21'''
-        if self.value > 21 and self.aces:
+        while self.value > 21 and self.aces:
             self.value -= 10
             self.aces -= 1
 
     def split(self):
         '''Split hand if cards are same value'''
-        pass
+        self.value -= values[self.cards[0].rank]
+        return self.cards.pop()
 
 
 class Chips:
@@ -130,7 +131,7 @@ def ask_bet(chips):
 def hit(hand, deck):
     '''Append card to hand'''
     hand.draw(deck.deal_card())
-    hand.aces()
+    hand.ace_adjust()
 
 
 def hit_or_stand(hand, deck):
