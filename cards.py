@@ -8,7 +8,8 @@ import random
 suits = ('Diamonds', 'Clubs', 'Hearts', 'Spades')
 ranks = ('Two', 'Three', 'Four', 'Five', 'Six', 'Seven',
          'Eight', 'Nine', 'Ten', 'Jack', 'Queen', 'King', 'Ace')
-values = {'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5, 'Six': 6, 'Seven': 7, 'Eight': 8, 'Nine': 9, 'Ten': 10, 'Jack': 10, 'Queen': 10, 'King': 10, 'Ace': 11}
+values = {'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5, 'Six': 6, 'Seven': 7,
+          'Eight': 8, 'Nine': 9, 'Ten': 10, 'Jack': 10, 'Queen': 10, 'King': 10, 'Ace': 11}
 
 
 class Card:
@@ -136,18 +137,22 @@ def ask_bet(chips):
     print(f"You are betting {chips.bet} chips")
 
 
-def split_hand(player, chips, deck):
+def split_hand(hand, chips, deck):
     '''
     return a new hand of a popped card from the player's hand, and a card from the desk
     also returns a new bank with the player's bet as the value and bet values
     '''
+    global split
+
     play_split = Hand()
-    play_split.draw(player.split())
+    play_split.draw(hand.split())
     play_split.draw(deck.deal_card())
 
     bank_split = Chips(chips.bet)
     bank_split.bet = chips.bet
     chips.value -= chips.bet
+
+    check_blackjack(play_split, bank_split)
 
     return play_split, bank_split
 
@@ -176,10 +181,50 @@ def hit_or_stand(hand, deck):
         break
 
 
-def player_blackjack(player, chips):
-    '''If player gets 21 on the draw, they get paid 2:1'''
-    print("Player gets Blackjack!")
-    chips.value += chips.bet * 2
+def ready_to_play():
+    '''Ask player if they want to play'''
+    global playing
+
+    x = input("Are you ready to play?(y/n) - ")
+
+    if x[0].lower() == 'y':
+        continue
+    else:
+        print("Thanks for playing!")
+        playing = False
+
+
+def check_blackjack(hand, chips):
+    '''Check if the player has blackjack and stop game if blackjack'''
+    global playing
+
+    if hand.value == 21:
+        print("Player gets Blackjack!")
+        chips.value += chips.bet * 2
+        playing = False
+    else:
+        continue
+
+    # needs something to check if the function is nested or not, if nested, then execute split = False code on blackjack
+
+
+def check_split(hand, chips):
+    '''Check if the player's deal and bank are eligible for a split hand'''
+    global split
+
+    if values[hand.cards[0].rank] == values[hand.cards[1].rank] and chips.bet * 2 < chips.value:
+    x = input("Do you want to split? (y/n) - ")
+
+        if x[0] == 'y':
+            print("Splitting hand!")
+            split = True
+        else:
+            print("Hand will not be split")
+
+
+def push():
+    '''No winner'''
+    print("No winner, this hand is a push!")
 
 
 def player_win(player, chips):
@@ -206,11 +251,23 @@ def dealer_bust(player, chips):
     chips.win_bet()
 
 
-def split_combine(player, chips, split, sp_chips, dealer):
+def split_combine(chips, split, sp_chips, dealer):
     '''Combine winnings/losses from a split hand'''
-    pass
+    if split.bust = True or dealer.value > split.value:
+        continue
+    elif:
+        split.value > dealer.value:
+        hips.value += sp_chips.bet
 
 
-def push():
-    '''No winner'''
-    print("No winner, this game is a push!")
+def play_again():
+    '''Ask if they player wants to play again'''
+    global playing
+
+    x = input("Would you like to play again?(y/n) - ")
+
+    if x[0].lower() == 'y':
+        playing = True
+    else:
+        print("Thanks for playing!")
+        playing = False
