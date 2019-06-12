@@ -220,19 +220,19 @@ def check_split(hand, chips):
             print("Hand will not be split")
 
 
-def dealer_draw(hand, sp_hand, dealer, chips, deck):
+def dealer_draw(hand, sp_hand, dealer_hand, chips, deck):
     '''dealer's turn if players have not busted'''
     print("\nDealer's Hand:")
-    disp_hand(dealer)
+    disp_hand(dealer_hand)
 
     if hand.bust == False or hand.blackjack == False or sp_hand.bust == False or sp_hand.blackjack == False:
-        while dealer.value < 17:
+        while dealer_hand.value < 17:
             hit(dealer, deck)
             print("\nDealer's Hand:")
-            disp_hand(dealer)
+            disp_hand(dealer_hand)
+    if dealer_hand.bust == True:
         print("\nDealer's Hand:")
-        disp_hand(dealer)
-    if dealer.bust == True:
+        disp_hand(dealer_hand)
         dealer_bust(hand, chips)
 
 
@@ -283,11 +283,12 @@ def calc_results(player, chips, sp_hand, sp_chips, dealer):
 
     if player.bust == False:
         if player.value > dealer.value:
+            print("\nPlayer's Hand:")
             disp_hand(player)
             player_win(player, chips)
         elif player.value < dealer.value and dealer.bust == False:
-            print("\nPlayer's Hand:")
-            disp_hand(player)
+            print("\nDealer's Hand:")
+            disp_hand(dealer)
             dealer_win(player, chips)
 
     chips.bet, sp_chips.bet, sp_chips.value = 0, 0, 0
