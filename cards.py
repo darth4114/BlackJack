@@ -55,18 +55,28 @@ class Hand:
         self.value = 0
         self.aces = 0
         self.bust = False
+        self.blackjack = False
 
     def draw(self, card):
         '''Drawing card from Deck() and adding value to total'''
         self.cards.append(card)
         self.value += values[card.rank]
+        # check for ace
         if card.rank == 'Ace':
             self.aces += 1
+        # bust switch check
         if self.value > 21:
             self.bust = True
-
-    def ace_adjust(self):
-        '''Compensate for aces if cards are over 21'''
+        # blackjack switch check
+        while True:
+            try:
+                if values[self.cards[0].rank] + values[self.cards[1].rank] == 21:
+                    self.blackjack = True
+            except IndexError:
+                break
+            else:
+                break
+        # ace value adjust
         while self.value > 21 and self.aces:
             self.value -= 10
             self.aces -= 1
@@ -76,11 +86,6 @@ class Hand:
         '''Split hand if cards are same value'''
         self.value -= values[self.cards[0].rank]
         return self.cards.pop()
-
-
-def disp_hand(player):
-    print(f"Player's Hand", *player.cards, sep='\n')
-    print(f"Hand Value = {player.value}")
 
 
 class Chips:
@@ -98,6 +103,11 @@ class Chips:
 
     def win_bet(self):
         self.value += self.win_bet
+
+
+def disp_hand(player):
+    print(*player.cards, sep='\n')
+    print(f"Hand Value = {player.value}")
 
 
 def ask_chips(chips):
@@ -143,16 +153,21 @@ def split_hand(hand, chips, deck):
     also returns a new bank with the player's bet as the value and bet values
     '''
     global split
-
+    # split hand and draw full hand
     play_split = Hand()
     play_split.draw(hand.split())
     play_split.draw(deck.deal_card())
 
+    # split bank and set value and bet = chip.bet
     bank_split = Chips(chips.bet)
     bank_split.bet = chips.bet
     chips.value -= chips.bet
 
-    check_blackjack(play_split, bank_split)
+    # if split hand draws a blackjack, pay out winnings and close the split loop
+    if play_split.blackjack == True:
+        disp_hand(play_split)
+        reward_blackjack(chips)
+        split == False
 
     return play_split, bank_split
 
@@ -160,7 +175,6 @@ def split_hand(hand, chips, deck):
 def hit(hand, deck):
     '''Append card to hand'''
     hand.draw(deck.deal_card())
-    hand.ace_adjust()
 
 
 def hit_or_stand(hand, deck):
@@ -188,24 +202,16 @@ def ready_to_play():
     x = input("Are you ready to play?(y/n) - ")
 
     if x[0].lower() == 'y':
-        continue
+        playing = True
     else:
         print("Thanks for playing!")
         playing = False
 
 
-def check_blackjack(hand, chips):
-    '''Check if the player has blackjack and stop game if blackjack'''
-    global playing
-
-    if hand.value == 21:
-        print("Player gets Blackjack!")
-        chips.value += chips.bet * 2
-        playing = False
-    else:
-        continue
-
-    # needs something to check if the function is nested or not, if nested, then execute split = False code on blackjack
+def reward_blackjack(chips):
+    '''Apply blackjack winnings'''
+    print("Player gets Blackjack!")
+    chips.value += chips.bet * 2
 
 
 def check_split(hand, chips):
@@ -213,7 +219,7 @@ def check_split(hand, chips):
     global split
 
     if values[hand.cards[0].rank] == values[hand.cards[1].rank] and chips.bet * 2 < chips.value:
-    x = input("Do you want to split? (y/n) - ")
+        x = input("Do you want to split? (y/n) - ")
 
         if x[0] == 'y':
             print("Splitting hand!")
@@ -253,21 +259,7 @@ def dealer_bust(player, chips):
 
 def split_combine(chips, split, sp_chips, dealer):
     '''Combine winnings/losses from a split hand'''
-    if split.bust = True or dealer.value > split.value:
-        continue
-    elif:
-        split.value > dealer.value:
+    if split.bust == True or dealer.value > split.value:
+        pass
+    elif split.value > dealer.value:
         hips.value += sp_chips.bet
-
-
-def play_again():
-    '''Ask if they player wants to play again'''
-    global playing
-
-    x = input("Would you like to play again?(y/n) - ")
-
-    if x[0].lower() == 'y':
-        playing = True
-    else:
-        print("Thanks for playing!")
-        playing = False
