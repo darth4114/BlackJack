@@ -146,7 +146,6 @@ def split_hand(hand, chips, deck, sp_hand, sp_chips):
     return a new hand of a popped card from the player's hand, and a card from the desk
     also returns a new bank with the player's bet as the value and bet values
     '''
-    global split
     # split hand and draw full hand
     sp_hand.skip = False
     sp_hand.draw(hand.split())
@@ -208,32 +207,29 @@ def reward_blackjack(chips):
 
 def check_split(hand, chips):
     '''Check if the player's deal and bank are eligible for a split hand'''
-    global split
-
     if values[hand.cards[0].rank] == values[hand.cards[1].rank] and chips.bet * 2 < chips.value:
         x = input("Do you want to split? (y/n) - ")
 
         if x[0] == 'y':
             print("Splitting hand!")
-            split = True
+            return True
         else:
             print("Hand will not be split")
+            return False
 
 
-def dealer_draw(hand, sp_hand, dealer_hand, chips, deck):
+def dealer_draw(hand, sp_hand, dealer_hand, chips, sp_chips, deck):
     '''dealer's turn if players have not busted'''
     print("\nDealer's Hand:")
     disp_hand(dealer_hand)
 
     if hand.bust == False or hand.blackjack == False or sp_hand.bust == False or sp_hand.blackjack == False:
         while dealer_hand.value < 17:
-            hit(dealer, deck)
+            hit(dealer_hand, deck)
             print("\nDealer's Hand:")
             disp_hand(dealer_hand)
     if dealer_hand.bust == True:
-        print("\nDealer's Hand:")
-        disp_hand(dealer_hand)
-        dealer_bust(hand, chips)
+        dealer_bust(hand, chips, sp_hand, sp_chips)
 
 
 def push():
@@ -259,10 +255,14 @@ def dealer_win(player, chips):
     chips.lose_bet()
 
 
-def dealer_bust(player, chips):
+def dealer_bust(player, chips, sp_hand, sp_chips):
     '''If dealer busts, add winnings to value'''
     print("Dealer busts!")
-    chips.win_bet()
+    if sp_chips.bet > 0 and sp_hand.blackjack == False:
+        chips.win_bet()
+        chips.value += sp_chips.bet * 2
+    else:
+        chips.win_bet()
 
 
 def split_combine(chips, split, dealer):
@@ -285,16 +285,20 @@ def calc_results(player, chips, sp_hand, sp_chips, dealer):
         if player.value > dealer.value:
             print("\nPlayer's Hand:")
             disp_hand(player)
-            player_win(player, chips)
-        elif player.value < dealer.value and dealer.bust == False:
             print("\nDealer's Hand:")
             disp_hand(dealer)
+            player_win(player, chips)
+        elif player.value < dealer.value and dealer.bust == False:
+            # print("\nDealer's Hand:")
+            # disp_hand(dealer)
             dealer_win(player, chips)
+        elif player.value == dealer.value:
+            push()
 
-    chips.bet, sp_chips.bet, sp_chips.value = 0, 0, 0
 
-
-def reset_board(player, sp_hand, dealer, deck):
+def reset_board(player, chips, sp_hand, sp_chips, dealer, deck):
+    chips.bet = 0
+    sp_chips.bet = 0
     del player
     del sp_hand
     del dealer

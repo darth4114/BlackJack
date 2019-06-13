@@ -4,21 +4,20 @@ This is the main Blackjack game file
 
 import cards as c
 
+player_bank = None
+playing = True
+
 # script start
 while True:
-    # set game loops below
-    playing = True
-    split = False
-
     # create and shuffle deck
     my_deck = c.Deck()
     my_deck.shuffle()
 
     # ask player how many chips to buy on first loop, skip on subsequent loops
-    try:
-        if player_bank.value > 0:
-            pass
-    except:
+
+    if player_bank and player_bank.value > 0:
+        pass
+    else:
         player_bank = c.Chips(0)
         c.ask_chips(player_bank)
 
@@ -64,47 +63,42 @@ while True:
 
         # check for player blackjack
         if player.blackjack == True:
-            c.reward_blackjack(chips)
+            c.reward_blackjack(player_bank)
             playing = False
             break
 
         # check for split
-        c.check_split(player, player_bank)
+        if c.check_split(player, player_bank):
+            # if player choses to split, start split loop
+            while True:
+                player_split, split_bank = c.split_hand(
+                    player, player_bank, my_deck, player_split, split_bank)
+                player.draw(my_deck.deal_card())
 
-        # if player choses to split, start split loop
-        while split:
-            player_split, split_bank = c.split_hand(
-                player, player_bank, my_deck)
-            player.draw(my_deck.deal_card())
+                # checks to see if player's new hand is blackjack
+                if player.blackjack == True:
+                    c.reward_blackjack(player_bank)
+                    player.skip = True
 
-            # checks to see if player's new hand is blackjack
-            if player.blackjack == True:
-                c.reward_blackjack(chips)
-                player.skip = True
-
-            # display split hand
-            print("Split Hand")
-            c.disp_hand(player_split)
-
-            # hit/stand for split hand
-            while not split_hand.skip:
-                c.hit_or_stand(player_split, my_deck)
-                print("\nSplit Hand")
-                c.disp_hand(player_split)
-
-                if player_split.bust == True:
-                    c.player_bust(player_split, split_bank)
-                    player_split.skip = True
-                    split = False
-                    break
-
-            # exit split loop
-            if player_split.value <= 21:
+                # display split hand
                 print("Split Hand")
                 c.disp_hand(player_split)
-                split = False
-            else:
-                break
+
+                # hit/stand for split hand
+                while not player_split.skip:
+                    c.hit_or_stand(player_split, my_deck)
+                    if player_split.skip == False:
+                        print("\nSplit Hand")
+                        c.disp_hand(player_split)
+
+                    if player_split.bust == True:
+                        c.player_bust(player_split, split_bank)
+                        player_split.skip = True
+                        break
+
+                # exit split loop
+                if player_split.value <= 21 and player_split.skip == True:
+                    break
 
         # if no blackjack or split, ask player to hit or stand
         while True:
@@ -112,6 +106,10 @@ while True:
                 break
             else:
                 while not player.skip:
+                    if player_split:
+                        print("\nPlayer's Hand")
+                        c.disp_hand(player)
+
                     c.hit_or_stand(player, my_deck)
                     print("\nPlayer's Hand")
                     c.disp_hand(player)
@@ -123,10 +121,11 @@ while True:
             break
 
         # dealer's turn
-        if player.skip == True:
+        if player.bust == True:
             pass
         else:
-            c.dealer_draw(player, player_split, dealer, player_bank, my_deck)
+            c.dealer_draw(player, player_split, dealer,
+                          player_bank, split_bank, my_deck)
 
         # calculate results and exit playing loop
         c.calc_results(player, player_bank, player_split, split_bank, dealer)
@@ -141,7 +140,8 @@ while True:
 
         if again[0].lower() == 'y':
             playing = True
-            c.reset_board(player, player_split, dealer, my_deck)
+            c.reset_board(player, player_bank, split_bank,
+                          player_split, dealer, my_deck)
         else:
             print("Thanks for playing! Sorry, the money isn't real.")
             break
